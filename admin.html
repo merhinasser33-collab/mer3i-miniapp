@@ -54,5 +54,60 @@
       document.getElementById("denied").classList.remove("hide");
     }
   </script>
+  <script>
+  // 1) جدول الأدوار
+  const ROLES = {
+    OWNER: "owner",
+    ADMIN: "admin",
+    EDITOR: "editor",
+    SUPPORT: "support",
+    VIEWER: "viewer"
+  };
+
+  // 2) هنا تحدد الأشخاص حسب Telegram ID
+  const ADMINS = {
+    5423756075: { name: "Mer3i", role: ROLES.OWNER },
+
+    1111111111: { name: "Ali", role: ROLES.ADMIN },     // كل شيء تقريبًا
+    2222222222: { name: "Sara", role: ROLES.EDITOR },   // يضيف/يعدل منتجات فقط
+    3333333333: { name: "Omar", role: ROLES.SUPPORT },  // ردود/دعم فقط
+  };
+
+  function getCurrentUserRole() {
+    const user = window.Telegram?.WebApp?.initDataUnsafe?.user;
+    if (!user) return null;
+    return ADMINS[user.id]?.role || null;
+  }
+
+  // 3) صلاحيات حسب الدور
+  const PERMISSIONS = {
+    [ROLES.OWNER]:  { products: true, orders: true, support: true, users: true, settings: true },
+    [ROLES.ADMIN]:  { products: true, orders: true, support: true, users: true, settings: false },
+    [ROLES.EDITOR]: { products: true, orders: false, support: false, users: false, settings: false },
+    [ROLES.SUPPORT]:{ products: false, orders: true, support: true, users: false, settings: false },
+    [ROLES.VIEWER]: { products: true, orders: false, support: false, users: false, settings: false },
+  };
+
+  // 4) دالة تستخدمها لإظهار/إخفاء الأقسام
+  function can(feature) {
+    const role = getCurrentUserRole();
+    if (!role) return false;
+    return !!PERMISSIONS[role]?.[feature];
+  }
+
+  // 5) مثال: أخفي عناصر حسب الصلاحية (لازم تضيف data-feature)
+  window.addEventListener("load", () => {
+    document.querySelectorAll("[data-feature]").forEach(el => {
+      const feature = el.getAttribute("data-feature");
+      if (!can(feature)) el.style.display = "none";
+    });
+
+    // إذا مش أدمن: امنع فتح صفحة الأدمن
+    const role = getCurrentUserRole();
+    if (!role) {
+      document.body.innerHTML = "<h3 style='text-align:center;margin-top:40px'>❌ لا تملك صلاحية الدخول</h3>";
+    }
+  });
+</script>
 </body>
 </html>
