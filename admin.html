@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>لوحة تحكم Mer3i</title>
+
+  <!-- Telegram WebApp SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <style>
+    body{font-family:Arial,sans-serif;background:#f4f6f8;padding:20px}
+    .card{background:#fff;max-width:520px;margin:auto;padding:20px;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.1)}
+    h2{text-align:center;margin:0 0 10px}
+    .muted{color:#666;font-size:14px}
+    button{width:100%;padding:14px;margin:8px 0;border:none;border-radius:10px;font-size:16px;background:#2563eb;color:#fff}
+    button.danger{background:#dc2626}
+    .hide{display:none}
+  </style>
+</head>
+
+<body>
+  <!-- شاشة رفض -->
+  <div id="denied" class="card hide">
+    <h2>🚫 ممنوع</h2>
+    <p class="muted">هذه الصفحة مخصصة للمدير فقط.</p>
+  </div>
+
+  <!-- لوحة التحكم -->
+  <div id="admin" class="card hide">
+    <h2>🛠 لوحة تحكم Mer3i</h2>
+    <p class="muted" id="who"></p>
+
+    <button onclick="alert('قريباً: إضافة منتج')">➕ إضافة منتج</button>
+    <button onclick="alert('قريباً: إدارة المنتجات')">📦 إدارة المنتجات</button>
+    <button onclick="alert('قريباً: رسائل العملاء')">💬 رسائل العملاء</button>
+    <button class="danger" onclick="Telegram.WebApp.close()">✖ إغلاق</button>
+  </div>
+
+  <script>
+    const ADMIN_ID = 5423756075; // هذا ID تبعك بالصورة
+
+    const tg = window.Telegram?.WebApp;
+    if (tg) tg.ready();
+
+    const user = tg?.initDataUnsafe?.user;
+    const uid = user?.id;
+
+    if (uid === ADMIN_ID) {
+      document.getElementById("admin").classList.remove("hide");
+      document.getElementById("who").textContent =
+        `✅ دخول المدير: ${user.first_name || ''} — ID: ${uid}`;
+    } else {
+      document.getElementById("denied").classList.remove("hide");
+    }
+  </script>
+</body>
+</html>
