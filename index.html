@@ -1,111 +1,76 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <title>Mer3i Market</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mer3i market</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f5f6fa;
-      margin: 0;
-      padding: 0;
-    }
-    header {
-      background: #2f80ed;
-      color: #fff;
-      padding: 15px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    main {
-      padding: 20px;
-    }
-    button {
-      padding: 8px 12px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      background: #fff;
-      color: #2f80ed;
-      font-weight: bold;
-    }
-    .card {
-      background: #fff;
-      padding: 15px;
-      border-radius: 8px;
-      margin-bottom: 15px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-    }
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto; background:#f3f5f9;}
+    .wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:18px;}
+    .card{width:min(520px,100%);background:#fff;border-radius:18px;box-shadow:0 10px 30px rgba(0,0,0,.08);padding:22px;text-align:center;}
+    h1{margin:0 0 8px;font-size:40px}
+    .sub{color:#198a32;font-weight:700;margin-bottom:16px}
+    .btn{border:0;border-radius:14px;padding:16px 18px;font-size:20px;cursor:pointer;width:100%;margin:10px 0}
+    .primary{background:#2f7df6;color:#fff;}
+    .soft{background:#e9eef6;color:#111;}
+    .black{background:#111;color:#fff;}
+    .small{font-size:14px;color:#666;margin-top:12px}
   </style>
 </head>
-
 <body>
+  <div class="wrap">
+    <div class="card">
+      <h1>✅ Mer3i Market 🛒</h1>
+      <div class="sub">تم تسجيل الدخول بنجاح</div>
 
-<header>
-  <div>🛒 Mer3i Market</div>
-  <button onclick="logout()">تسجيل خروج</button>
-</header>
+      <button class="btn black" id="btnDashboard">🛠️ لوحة التحكم</button>
+      <button class="btn soft" id="btnInquiry">💬 استفسار</button>
+      <button class="btn primary" id="btnLogout">تسجيل خروج</button>
 
-<main>
-  <div class="card">
-    <h3>مرحبًا بك 👋</h3>
-    <p>أنت الآن داخل النظام بشكل آمن.</p>
-    <p id="userInfo"></p>
+      <div class="small" id="status"></div>
+    </div>
   </div>
 
-  <div class="card">
-    <h4>🔒 ملاحظة</h4>
-    <p>
-      هذه الصفحة لا يمكن الوصول إليها إلا بعد تسجيل الدخول.
-    </p>
-  </div>
-</main>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
-<!-- Firebase -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import {
-    getAuth,
-    onAuthStateChanged,
-    signOut
-  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    const firebaseConfig = {
+      apiKey: "AIzaSyDdChxB8Axden4r5TChcL_wuwuGUZfL0yk",
+      authDomain: "mer3imarket.firebaseapp.com",
+      projectId: "mer3imarket",
+      storageBucket: "mer3imarket.firebasestorage.app",
+      messagingSenderId: "318791325244",
+      appId: "1:318791325244:web:2a35c7fe774ab1772f5539",
+      measurementId: "G-4ZR3G6DEN4"
+    };
 
-  // 🔹 إعدادات Firebase
-  const firebaseConfig = {
-    apiKey: "AIzaSyDdChxB8Axden4r5TChcL_wuwuGUZfL0yk",
-    authDomain: "mer3imarket.firebaseapp.com",
-    projectId: "mer3imarket",
-    storageBucket: "mer3imarket.firebasestorage.app",
-    messagingSenderId: "318791325244",
-    appId: "1:318791325244:web:2a35c7fe774ab1772f5539",
-    measurementId: "G-4ZR3G6DEN4"
-  };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
 
-  // Init
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
+    const status = document.getElementById("status");
 
-  // 🔐 حماية الصفحة
-  onAuthStateChanged(auth, (user) => {
-    if (!user) {
-      // غير مسجّل → رجوع إلى login
+    // ✅ حماية الصفحة: إذا مش داخل يرجع لـ login
+    onAuthStateChanged(auth, (user)=>{
+      if(!user){
+        window.location.href = "login.html";
+      }else{
+        status.textContent = "جاهز ✅";
+      }
+    });
+
+    document.getElementById("btnDashboard").onclick = ()=>{
+      window.location.href = "dashboard.html";
+    };
+
+    document.getElementById("btnInquiry").onclick = ()=>{
+      window.location.href = "inquiry.html";
+    };
+
+    document.getElementById("btnLogout").onclick = async ()=>{
+      await signOut(auth);
       window.location.href = "login.html";
-    } else {
-      // عرض معلومات بسيطة
-      document.getElementById("userInfo").innerText =
-        user.email ? `📧 ${user.email}` : `📱 ${user.phoneNumber}`;
-    }
-  });
-
-  // تسجيل خروج
-  window.logout = async () => {
-    await signOut(auth);
-    window.location.href = "login.html";
-  };
-</script>
-
+    };
+  </script>
 </body>
 </html>
