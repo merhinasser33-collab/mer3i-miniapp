@@ -1,114 +1,214 @@
-<!DOCTYPE html>
+  <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>لوحة تحكم Mer3i</title>
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- ضروري جداً لتشغيل Telegram WebApp -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
   <style>
-    body {
+    body{
+      margin:0;
       font-family: Arial, sans-serif;
-      background: #f4f6f8;
-      margin: 0;
-      padding: 20px;
+      background:#f6f7fb;
+      color:#111;
     }
-
-    .card {
-      max-width: 520px;
-      margin: 40px auto;
-      background: #fff;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 5px 15px rgba(0,0,0,.08);
-      text-align: center;
+    .wrap{
+      max-width:720px;
+      margin:24px auto;
+      padding:0 14px;
     }
-
-    h1, h2 {
-      margin-top: 0;
+    .card{
+      background:#fff;
+      border-radius:16px;
+      padding:18px;
+      box-shadow:0 6px 18px rgba(0,0,0,.08);
+      border:1px solid rgba(0,0,0,.06);
     }
-
-    .muted {
-      color: #666;
-      font-size: 14px;
+    .title{
+      font-size:26px;
+      margin:0 0 10px;
+      font-weight:700;
     }
-
-    button {
-      width: 100%;
-      padding: 12px;
-      margin: 8px 0;
-      font-size: 16px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      background: #2d8cff;
-      color: white;
+    .muted{
+      color:#666;
+      margin:6px 0 0;
+      line-height:1.6;
     }
-
-    button.danger {
-      background: #e53935;
+    .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:14px;
     }
-
-    .hide {
-      display: none !important;
+    button, a.btn{
+      border:0;
+      border-radius:12px;
+      padding:12px 14px;
+      font-size:16px;
+      cursor:pointer;
+      background:#2b7cff;
+      color:#fff;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
     }
+    button.secondary, a.btn.secondary{
+      background:#111;
+    }
+    button.gray{
+      background:#e9edf5;
+      color:#111;
+    }
+    button.danger{
+      background:#ff3b30;
+    }
+    .pill{
+      display:inline-block;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:13px;
+      background:#eef6ff;
+      color:#1a63d6;
+      margin-top:10px;
+    }
+    .hr{
+      height:1px;
+      background:rgba(0,0,0,.08);
+      margin:14px 0;
+    }
+    .hide{ display:none !important; }
+    code{
+      background:#f2f4f8;
+      padding:2px 6px;
+      border-radius:8px;
+      font-size:13px;
+    }
+    .status-ok{ color:#0a8f3e; font-weight:700;}
+    .status-bad{ color:#c62828; font-weight:700;}
   </style>
 </head>
 
 <body>
+  <div class="wrap">
+    <!-- كرت منع -->
+    <div id="blocked" class="card hide">
+      <h1 class="title">❌ لا يمكن التحقق من المستخدم</h1>
+      <p class="muted"><span class="status-bad">ممنوع</span> ⛔</p>
+      <p class="muted">هذه الصفحة مخصصة للمدير فقط.</p>
+      <div class="hr"></div>
+      <p class="muted" id="blockedReason"></p>
+      <div class="row">
+        <button class="gray" onclick="location.reload()">🔄 إعادة تحميل</button>
+        <a class="btn secondary" href="https://t.me/Mer3iMarket_bot">🤖 فتح البوت</a>
+      </div>
+    </div>
 
-  <!-- ❌ صفحة المنع -->
-  <div id="blocked" class="card hide">
-    <h1>❌ لا يمكن التحقق من المستخدم</h1>
-    <h2>🚫 ممنوع</h2>
-    <p class="muted">هذه الصفحة مخصصة للمدير فقط.</p>
-  </div>
+    <!-- كرت المدير -->
+    <div id="admin" class="card hide">
+      <h1 class="title">🛠️ لوحة تحكم Mer3i</h1>
+      <div class="pill">✅ تم التحقق بنجاح</div>
 
-  <!-- ✅ لوحة التحكم -->
-  <div id="admin" class="card hide">
-    <h2>🛠 لوحة تحكم Mer3i</h2>
-    <p class="muted" id="who"></p>
+      <p class="muted" id="who"></p>
 
-    <button onclick="alert('إضافة منتج (لاحقًا)')">➕ إضافة منتج</button>
-    <button onclick="alert('إدارة المنتجات (لاحقًا)')">📦 إدارة المنتجات</button>
-    <button onclick="alert('رسائل العملاء (لاحقًا)')">💬 رسائل العملاء</button>
+      <div class="hr"></div>
 
-    <button class="danger" onclick="closeApp()">✖ إغلاق</button>
+      <div class="row">
+        <button onclick="feature('add_product')">➕ إضافة منتج</button>
+        <button onclick="feature('manage_products')">📦 إدارة المنتجات</button>
+        <button onclick="feature('messages')">💬 رسائل العملاء</button>
+        <button class="gray" onclick="location.reload()">🔄 تحديث</button>
+        <a class="btn secondary" href="https://t.me/Mer3iMarket_bot">🤖 فتح البوت</a>
+      </div>
+
+      <div class="hr"></div>
+
+      <p class="muted">
+        ملاحظة: هذه لوحة تجريبية. لاحقاً نضيف صفحات: المنتجات/الطلبات/المستخدمين داخل نفس المشروع.
+      </p>
+      <p class="muted" style="margin-top:10px">
+        فحص سريع: <span id="dbg"></span>
+      </p>
+    </div>
   </div>
 
   <script>
-    // 🔐 ضع Telegram ID الخاص بك فقط
-    const ADMIN_ID = 5423756075;
+    /***********************
+     * إعدادات المدير
+     ***********************/
+    const ADMIN_ID = 5423756075; // <-- ضع رقم Telegram ID الخاص فيك هنا
 
-    const tg = window.Telegram?.WebApp;
-    if (tg) tg.ready();
+    /***********************
+     * أدوات
+     ***********************/
+    const $ = (id) => document.getElementById(id);
 
-    const adminBox = document.getElementById("admin");
-    const blockedBox = document.getElementById("blocked");
-    const who = document.getElementById("who");
-
-    const userId = tg?.initDataUnsafe?.user?.id;
-    const firstName = tg?.initDataUnsafe?.user?.first_name || "";
-
-    if (userId === ADMIN_ID) {
-      // ✅ مدير
-      blockedBox.classList.add("hide");
-      adminBox.classList.remove("hide");
-      who.textContent = `مرحباً ${firstName} ✅ (ID: ${userId})`;
-    } else {
-      // ❌ غير مسموح
-      adminBox.classList.add("hide");
-      blockedBox.classList.remove("hide");
+    function showBlocked(reason){
+      $("admin").classList.add("hide");
+      $("blocked").classList.remove("hide");
+      $("blockedReason").textContent = reason || "";
     }
 
-    function closeApp() {
-      if (tg) {
-        tg.close();
-      } else {
-        window.location.href = "/";
+    function showAdmin(user){
+      $("blocked").classList.add("hide");
+      $("admin").classList.remove("hide");
+      const name = [user?.first_name, user?.last_name].filter(Boolean).join(" ").trim() || "—";
+      const username = user?.username ? "@" + user.username : "—";
+      $("who").innerHTML =
+        `Telegram ID: <b>${user?.id ?? "—"}</b><br>` +
+        `الاسم: <b>${name}</b><br>` +
+        `username: <b>${username}</b>`;
+    }
+
+    function getTelegramUser(){
+      try{
+        const tg = window.Telegram?.WebApp;
+        if(!tg) return { ok:false, reason:"الصفحة ليست مفتوحة كـ Telegram WebApp. افتحها من داخل البوت (Menu/WebApp)." };
+
+        tg.ready();
+        tg.expand();
+
+        // أهم شيء: user يأتي من initDataUnsafe
+        const user = tg.initDataUnsafe?.user;
+        if(!user || !user.id){
+          return { ok:false, reason:"لم يتم إرسال بيانات المستخدم من تيليجرام. تأكد أنك فتحتها من زر داخل البوت، ثم اضغط إعادة تحميل." };
+        }
+        return { ok:true, user, tg };
+      }catch(e){
+        return { ok:false, reason:"خطأ أثناء القراءة من Telegram WebApp: " + (e?.message || e) };
       }
     }
-  </script>
 
+    function checkAdmin(){
+      const res = getTelegramUser();
+      if(!res.ok){
+        showBlocked(res.reason);
+        $("dbg") && ($("dbg").textContent = "WEBAPP: NO / USER: NO");
+        return;
+      }
+
+      const user = res.user;
+      const isAdmin = Number(user.id) === Number(ADMIN_ID);
+
+      if(!isAdmin){
+        showBlocked(`هذا الحساب ليس مديراً. (ID لديك: ${user.id})`);
+        $("dbg") && ($("dbg").textContent = "WEBAPP: YES / USER: YES / ADMIN: NO");
+        return;
+      }
+
+      showAdmin(user);
+      $("dbg").textContent = "WEBAPP: YES / USER: YES / ADMIN: YES";
+    }
+
+    function feature(name){
+      alert("ميزة تجريبية: " + name + "\n\nالخطوة التالية: سنربطها بصفحات داخل نفس المشروع.");
+    }
+
+    // شغّل التحقق
+    checkAdmin();
+  </script>
 </body>
 </html>
