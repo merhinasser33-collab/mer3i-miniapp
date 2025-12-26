@@ -5,81 +5,30 @@
   <title>تسجيل الدخول | Mer3i Market</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Firebase -->
+  <!-- Firebase (Compat) -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
   <style>
-    body {
-      font-family: Tahoma, Arial;
-      background: #f4f6f8;
-      margin: 0;
-      padding: 0;
-    }
-    .card {
-      max-width: 420px;
-      margin: 40px auto;
-      background: #fff;
-      border-radius: 14px;
-      padding: 25px;
-      box-shadow: 0 10px 25px rgba(0,0,0,.1);
-    }
-    h1 {
-      text-align: center;
-      margin-bottom: 10px;
-    }
-    p {
-      text-align: center;
-      color: #555;
-      font-size: 14px;
-    }
-    .tabs {
-      display: flex;
-      gap: 10px;
-      margin: 20px 0;
-    }
-    .tabs button {
-      flex: 1;
-      padding: 12px;
-      border-radius: 10px;
-      border: 1px solid #ddd;
-      cursor: pointer;
-      font-size: 15px;
-      background: #f1f1f1;
-    }
-    .tabs button.active {
-      background: #1976d2;
-      color: #fff;
-      border-color: #1976d2;
-    }
-    input {
-      width: 100%;
-      padding: 12px;
-      border-radius: 10px;
-      border: 1px solid #ccc;
-      font-size: 15px;
-      margin-bottom: 10px;
-    }
-    button.main {
-      width: 100%;
-      padding: 14px;
-      background: #1976d2;
-      color: #fff;
-      border: none;
-      border-radius: 10px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    .secondary {
-      margin-top: 10px;
-      background: #eee;
-      color: #000;
-    }
-    .hidden {
-      display: none;
-    }
+    body{margin:0;font-family:Arial,sans-serif;background:#f6f7fb;color:#111}
+    .card{max-width:420px;margin:40px auto;background:#fff;border-radius:14px;
+      padding:24px;box-shadow:0 10px 25px rgba(0,0,0,.1)}
+    h1{text-align:center;margin:0 0 10px}
+    p{text-align:center;color:#555;margin:0 0 16px}
+    .tabs{display:flex;gap:10px;margin-bottom:14px}
+    .tabs button{flex:1;padding:12px;border-radius:10px;border:1px solid #ddd;
+      background:#f1f1f1;cursor:pointer;font-size:15px}
+    .tabs button.active{background:#1976d2;color:#fff;border-color:#1976d2}
+    input{width:100%;padding:12px;border-radius:10px;border:1px solid #ccc;
+      font-size:15px;margin-bottom:10px}
+    button.main{width:100%;padding:14px;background:#1976d2;color:#fff;border:none;
+      border-radius:10px;font-size:16px;cursor:pointer}
+    button.secondary{margin-top:8px;background:#eee;color:#000}
+    .hidden{display:none}
+    .msg{margin-top:10px;font-size:14px;text-align:center}
   </style>
 </head>
+
 <body>
 
 <div class="card">
@@ -91,74 +40,89 @@
     <button id="btnEmail" onclick="showEmail()">📧 بريد</button>
   </div>
 
-  <!-- تسجيل عبر الهاتف -->
+  <!-- الهاتف -->
   <div id="phoneBox">
     <input type="tel" id="phone" placeholder="+96170123456">
     <button class="main" onclick="sendCode()">إرسال كود</button>
-    <input type="text" id="code" placeholder="أدخل كود التحقق" class="hidden">
+
+    <input type="text" id="code" class="hidden" placeholder="أدخل كود التحقق">
     <button class="main hidden" id="verifyBtn" onclick="verifyCode()">تأكيد</button>
   </div>
 
-  <!-- تسجيل عبر البريد -->
+  <!-- البريد -->
   <div id="emailBox" class="hidden">
     <input type="email" id="email" placeholder="example@email.com">
     <input type="password" id="password" placeholder="كلمة المرور">
     <button class="main" onclick="loginEmail()">دخول</button>
   </div>
 
-  <button class="main secondary" onclick="openBot()">🤖 فتح البوت</button>
+  <div id="msg" class="msg"></div>
+
+  <button class="main secondary" onclick="goHome()">⬅️ رجوع</button>
 </div>
 
 <script>
-  // 🔥 ضع إعدادات Firebase الخاصة بك هنا
+  // 🔧 ضع إعدادات Firebase الخاصة بك هنا
   const firebaseConfig = {
-    apiKey: "API_KEY",
-    authDomain: "PROJECT_ID.firebaseapp.com",
-    projectId: "PROJECT_ID",
-    appId: "APP_ID"
+    apiKey: "PUT_API_KEY",
+    authDomain: "PUT_AUTH_DOMAIN",
+    projectId: "PUT_PROJECT_ID",
+    appId: "PUT_APP_ID"
   };
 
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
 
-  function showPhone() {
+  // 🔁 تحويل تلقائي: إذا كان مسجّل دخول → index.html
+  firebase.auth().onAuthStateChanged(user => {
+    if (user) {
+      window.location.href = "index.html";
+    }
+  });
+
+  const phoneBox = document.getElementById("phoneBox");
+  const emailBox = document.getElementById("emailBox");
+  const btnPhone = document.getElementById("btnPhone");
+  const btnEmail = document.getElementById("btnEmail");
+  const msg = document.getElementById("msg");
+
+  function showPhone(){
     phoneBox.classList.remove("hidden");
     emailBox.classList.add("hidden");
     btnPhone.classList.add("active");
     btnEmail.classList.remove("active");
   }
 
-  function showEmail() {
+  function showEmail(){
     emailBox.classList.remove("hidden");
     phoneBox.classList.add("hidden");
     btnEmail.classList.add("active");
     btnPhone.classList.remove("active");
   }
 
-  function sendCode() {
-    alert("سيتم إرسال رمز التحقق (يجب ربط reCAPTCHA لاحقًا)");
+  // ⚠️ هذا تبسيط للواجهة فقط (OTP الحقيقي نضيفه لاحقًا)
+  function sendCode(){
+    msg.textContent = "تم إرسال الكود (OTP الحقيقي سنفعّله لاحقًا).";
     document.getElementById("code").classList.remove("hidden");
     document.getElementById("verifyBtn").classList.remove("hidden");
   }
 
-  function verifyCode() {
-    alert("تم تسجيل الدخول بنجاح");
+  function verifyCode(){
+    msg.textContent = "تم تسجيل الدخول (واجهة مؤقتة).";
     window.location.href = "index.html";
   }
 
-  function loginEmail() {
+  function loginEmail(){
     const email = document.getElementById("email").value;
     const pass = document.getElementById("password").value;
 
     auth.signInWithEmailAndPassword(email, pass)
-      .then(() => {
-        window.location.href = "index.html";
-      })
-      .catch(err => alert(err.message));
+      .then(()=> window.location.href="index.html")
+      .catch(e => msg.textContent = e.message);
   }
 
-  function openBot() {
-    window.open("https://t.me/YOUR_BOT_USERNAME", "_blank");
+  function goHome(){
+    window.location.href = "index.html";
   }
 </script>
 
