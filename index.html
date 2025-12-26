@@ -1,40 +1,54 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Mer3i Market</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    body{font-family:Arial;background:#f4f6f8;margin:0;padding:16px}
-    .card{background:#fff;border-radius:16px;padding:16px;max-width:560px;margin:auto}
-    .row{display:flex;gap:10px;flex-wrap:wrap}
-    button{flex:1;min-width:140px;padding:12px;border:0;border-radius:12px;background:#2a8cff;color:#fff;font-size:16px}
-    .muted{color:#666;font-size:13px}
+    body{font-family:Arial, sans-serif; margin:0; padding:24px; background:#f6f7fb}
+    .card{max-width:520px;margin:0 auto;background:#fff;border-radius:16px;padding:18px;box-shadow:0 6px 18px rgba(0,0,0,.08)}
+    .btn{display:inline-block;padding:12px 14px;border-radius:12px;background:#1976d2;color:#fff;text-decoration:none;border:none}
+    .muted{color:#666;font-size:14px}
+    code{background:#f0f0f0;padding:2px 6px;border-radius:6px}
   </style>
 </head>
 <body>
   <div class="card">
-    <h2>🛒 Mer3i Market</h2>
-    <p id="user" class="muted">جاري التحميل...</p>
+    <h2>Mer3i Market ✅</h2>
+    <p class="muted">هذه صفحة اختبار لإظهار Telegram ID.</p>
 
-    <div class="row">
-      <button onclick="alert('قريبًا المنتجات')">📦 المنتجات</button>
-      <button onclick="openChat()">💬 استفسار</button>
-    </div>
+    <div id="status">جارٍ التحميل…</div>
+    <hr/>
+    <p><b>Telegram ID:</b> <code id="tgId">-</code></p>
+    <p><b>الاسم:</b> <span id="tgName">-</span></p>
+    <p><b>username:</b> <span id="tgUser">-</span></p>
+
+    <p class="muted">إذا فتحتها خارج تيليجرام لن يظهر الـID.</p>
+    <button class="btn" onclick="window.location.reload()">تحديث</button>
   </div>
 
-<script>
-  const tg = window.Telegram?.WebApp;
-  tg?.ready(); tg?.expand();
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script>
+    const statusEl = document.getElementById('status');
+    const idEl = document.getElementById('tgId');
+    const nameEl = document.getElementById('tgName');
+    const userEl = document.getElementById('tgUser');
 
-  const u = tg?.initDataUnsafe?.user;
-  document.getElementById("user").innerText =
-    u ? `أهلًا ${u.first_name} ✅` : "مرحبًا بك ✅";
-
-  function openChat(){
-    tg.openTelegramLink("https://t.me/Mer3iMarket_bot");
-  }
-</script>
+    const tg = window.Telegram?.WebApp;
+    if (!tg) {
+      statusEl.innerHTML = "❌ لم يتم تحميل Telegram WebApp. افتح الرابط من داخل تيليجرام.";
+    } else {
+      tg.ready();
+      const u = tg.initDataUnsafe?.user;
+      if (!u) {
+        statusEl.innerHTML = "❌ لا توجد بيانات مستخدم. افتح الـMiniApp من زر البوت داخل تيليجرام.";
+      } else {
+        statusEl.innerHTML = "✅ تم جلب بيانات تيليجرام بنجاح";
+        idEl.textContent = u.id ?? "-";
+        nameEl.textContent = [u.first_name, u.last_name].filter(Boolean).join(" ") || "-";
+        userEl.textContent = u.username ? "@"+u.username : "-";
+      }
+    }
+  </script>
 </body>
 </html>
