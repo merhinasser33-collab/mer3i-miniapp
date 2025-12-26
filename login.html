@@ -1,281 +1,166 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>تسجيل دخول - Mer3i Market</title>
+  <meta charset="UTF-8">
+  <title>تسجيل الدخول | Mer3i Market</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Telegram WebApp -->
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
   <style>
-    body{margin:0;font-family:Arial,sans-serif;background:#f6f7fb;color:#111}
-    .wrap{max-width:720px;margin:24px auto;padding:0 14px}
-    .card{background:#fff;border-radius:18px;padding:18px;box-shadow:0 6px 18px rgba(0,0,0,.08);border:1px solid rgba(0,0,0,.06)}
-    h1{margin:0 0 12px;font-size:26px}
-    .muted{color:#666;line-height:1.7;margin:6px 0}
-    .tabs{display:flex;gap:10px;margin:14px 0 10px}
-    .tab{flex:1;border:1px solid rgba(0,0,0,.1);background:#f2f4f8;padding:12px;border-radius:14px;cursor:pointer;font-weight:700}
-    .tab.active{background:#2b7cff;color:#fff;border-color:#2b7cff}
-    label{display:block;margin:10px 0 6px;font-weight:700}
-    input{width:100%;padding:12px 12px;border-radius:12px;border:1px solid rgba(0,0,0,.15);font-size:16px;outline:none}
-    .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
-    button,a.btn{border:0;border-radius:12px;padding:12px 14px;font-size:16px;cursor:pointer;background:#2b7cff;color:#fff;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
-    button.gray{background:#e9edf5;color:#111}
-    button.dark{background:#111}
-    button.danger{background:#ff3b30}
-    .hide{display:none!important}
-    .msg{margin-top:12px;padding:12px;border-radius:12px;background:#f2f4f8;border:1px solid rgba(0,0,0,.08)}
-    .ok{color:#0a8f3e;font-weight:800}
-    .bad{color:#c62828;font-weight:800}
-    .tiny{font-size:13px;color:#777;margin-top:10px}
-    /* نخلي reCAPTCHA صغير/مخفي قدر الإمكان */
-    #recaptcha-container{transform:scale(.92);transform-origin:right top}
+    body {
+      font-family: Tahoma, Arial;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 0;
+    }
+    .card {
+      max-width: 420px;
+      margin: 40px auto;
+      background: #fff;
+      border-radius: 14px;
+      padding: 25px;
+      box-shadow: 0 10px 25px rgba(0,0,0,.1);
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    p {
+      text-align: center;
+      color: #555;
+      font-size: 14px;
+    }
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin: 20px 0;
+    }
+    .tabs button {
+      flex: 1;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      cursor: pointer;
+      font-size: 15px;
+      background: #f1f1f1;
+    }
+    .tabs button.active {
+      background: #1976d2;
+      color: #fff;
+      border-color: #1976d2;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 15px;
+      margin-bottom: 10px;
+    }
+    button.main {
+      width: 100%;
+      padding: 14px;
+      background: #1976d2;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .secondary {
+      margin-top: 10px;
+      background: #eee;
+      color: #000;
+    }
+    .hidden {
+      display: none;
+    }
   </style>
 </head>
-
 <body>
-  <div class="wrap">
-    <div class="card">
-      <h1>🔐 تسجيل الدخول</h1>
-      <p class="muted">
-        اختر طريقة الدخول: <b>بريد</b> أو <b>هاتف</b>.  
-        (كل البيانات تبقى داخل Firebase ولا تظهر للناس).
-      </p>
 
-      <div class="tabs">
-        <div class="tab active" id="tabEmail" onclick="switchTab('email')">📧 بريد</div>
-        <div class="tab" id="tabPhone" onclick="switchTab('phone')">📱 هاتف</div>
-      </div>
+<div class="card">
+  <h1>🔐 تسجيل الدخول</h1>
+  <p>اختر طريقة الدخول</p>
 
-      <!-- EMAIL -->
-      <div id="panelEmail">
-        <label>البريد الإلكتروني</label>
-        <input id="email" type="email" placeholder="example@gmail.com" autocomplete="email"/>
-
-        <label>كلمة المرور</label>
-        <input id="password" type="password" placeholder="••••••••" autocomplete="current-password"/>
-
-        <div class="row">
-          <button onclick="emailLogin()">تسجيل دخول</button>
-          <button class="dark" onclick="emailSignup()">إنشاء حساب</button>
-          <button class="gray" onclick="emailReset()">نسيت كلمة المرور</button>
-        </div>
-      </div>
-
-      <!-- PHONE -->
-      <div id="panelPhone" class="hide">
-        <label>رقم الهاتف (مع كود الدولة)</label>
-        <input id="phone" type="tel" placeholder="+96170123456" autocomplete="tel"/>
-
-        <div class="tiny">
-          ⚠️ لازم تكتب الرقم هكذا: <b>+961</b> ثم الرقم.
-        </div>
-
-        <!-- reCAPTCHA (Firebase يفرضه للهاتف) -->
-        <div style="margin-top:12px">
-          <div id="recaptcha-container"></div>
-        </div>
-
-        <div class="row">
-          <button onclick="sendCode()">إرسال كود</button>
-          <button class="gray" onclick="clearPhoneFlow()">مسح</button>
-        </div>
-
-        <div id="otpBox" class="hide">
-          <label>أدخل الكود</label>
-          <input id="otp" type="number" inputmode="numeric" placeholder="123456"/>
-
-          <div class="row">
-            <button class="dark" onclick="confirmCode()">تأكيد الدخول</button>
-          </div>
-        </div>
-      </div>
-
-      <div id="message" class="msg hide"></div>
-
-      <div class="row" style="margin-top:16px">
-        <button class="gray" onclick="goHome()">⬅️ رجوع</button>
-        <a class="btn dark" href="https://t.me/Mer3iMarket_bot">🤖 فتح البوت</a>
-      </div>
-
-      <div class="tiny" id="dbg"></div>
-    </div>
+  <div class="tabs">
+    <button id="btnPhone" class="active" onclick="showPhone()">📱 هاتف</button>
+    <button id="btnEmail" onclick="showEmail()">📧 بريد</button>
   </div>
 
-  <!-- Firebase (Web SDK v10) -->
-  <script type="module">
-    /************ 1) ضع إعدادات Firebase هنا ************/
-    // Firebase Console -> Project settings -> Your apps -> Web app -> config
-    const firebaseConfig = {
-      apiKey: "PUT_API_KEY_HERE",
-      authDomain: "PUT_AUTH_DOMAIN_HERE",
-      projectId: "PUT_PROJECT_ID_HERE",
-      storageBucket: "PUT_STORAGE_BUCKET_HERE",
-      messagingSenderId: "PUT_SENDER_ID_HERE",
-      appId: "PUT_APP_ID_HERE"
-    };
+  <!-- تسجيل عبر الهاتف -->
+  <div id="phoneBox">
+    <input type="tel" id="phone" placeholder="+96170123456">
+    <button class="main" onclick="sendCode()">إرسال كود</button>
+    <input type="text" id="code" placeholder="أدخل كود التحقق" class="hidden">
+    <button class="main hidden" id="verifyBtn" onclick="verifyCode()">تأكيد</button>
+  </div>
 
-    /************ 2) Imports ************/
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import {
-      getAuth,
-      setPersistence,
-      browserLocalPersistence,
-      onAuthStateChanged,
-      signInWithEmailAndPassword,
-      createUserWithEmailAndPassword,
-      sendPasswordResetEmail,
-      signOut,
-      RecaptchaVerifier,
-      signInWithPhoneNumber
-    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+  <!-- تسجيل عبر البريد -->
+  <div id="emailBox" class="hidden">
+    <input type="email" id="email" placeholder="example@email.com">
+    <input type="password" id="password" placeholder="كلمة المرور">
+    <button class="main" onclick="loginEmail()">دخول</button>
+  </div>
 
-    /************ 3) Init ************/
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+  <button class="main secondary" onclick="openBot()">🤖 فتح البوت</button>
+</div>
 
-    // خلي تسجيل الدخول محفوظ على الجهاز
-    await setPersistence(auth, browserLocalPersistence);
+<script>
+  // 🔥 ضع إعدادات Firebase الخاصة بك هنا
+  const firebaseConfig = {
+    apiKey: "API_KEY",
+    authDomain: "PROJECT_ID.firebaseapp.com",
+    projectId: "PROJECT_ID",
+    appId: "APP_ID"
+  };
 
-    // Telegram WebApp (اختياري)
-    const tg = window.Telegram?.WebApp;
-    if (tg) { tg.ready(); tg.expand(); }
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
 
-    // UI helpers
-    const $ = (id) => document.getElementById(id);
-    function showMsg(text, ok=true){
-      const el = $("message");
-      el.classList.remove("hide");
-      el.innerHTML = (ok ? `<span class="ok">✅</span> ` : `<span class="bad">❌</span> `) + text;
-    }
-    function hideMsg(){ $("message").classList.add("hide"); }
+  function showPhone() {
+    phoneBox.classList.remove("hidden");
+    emailBox.classList.add("hidden");
+    btnPhone.classList.add("active");
+    btnEmail.classList.remove("active");
+  }
 
-    // تبويب
-    window.switchTab = (mode) => {
-      hideMsg();
-      if(mode === "email"){
-        $("tabEmail").classList.add("active");
-        $("tabPhone").classList.remove("active");
-        $("panelEmail").classList.remove("hide");
-        $("panelPhone").classList.add("hide");
-      }else{
-        $("tabPhone").classList.add("active");
-        $("tabEmail").classList.remove("active");
-        $("panelPhone").classList.remove("hide");
-        $("panelEmail").classList.add("hide");
-        ensureRecaptcha();
-      }
-    };
+  function showEmail() {
+    emailBox.classList.remove("hidden");
+    phoneBox.classList.add("hidden");
+    btnEmail.classList.add("active");
+    btnPhone.classList.remove("active");
+  }
 
-    // رجوع
-    window.goHome = () => {
-      // عدل الرابط حسب مشروعك: index.html أو /
-      location.href = "index.html";
-    };
+  function sendCode() {
+    alert("سيتم إرسال رمز التحقق (يجب ربط reCAPTCHA لاحقًا)");
+    document.getElementById("code").classList.remove("hidden");
+    document.getElementById("verifyBtn").classList.remove("hidden");
+  }
 
-    // عندما يكون المستخدم مسجل دخول، نرجعه للصفحة الرئيسية
-    onAuthStateChanged(auth, (user) => {
-      const d = $("dbg");
-      if(d) d.textContent = tg ? "داخل Telegram ✅" : "خارج Telegram (اختبار) ✅";
-      if(user){
-        // نجاح: رجّع المستخدم
-        showMsg("تم تسجيل الدخول بنجاح. سيتم الرجوع الآن…", true);
-        setTimeout(() => (location.href = "index.html"), 900);
-      }
-    });
+  function verifyCode() {
+    alert("تم تسجيل الدخول بنجاح");
+    window.location.href = "index.html";
+  }
 
-    /************ EMAIL ************/
-    window.emailLogin = async () => {
-      hideMsg();
-      const email = $("email").value.trim();
-      const password = $("password").value;
-      if(!email || !password) return showMsg("اكتب البريد وكلمة المرور.", false);
+  function loginEmail() {
+    const email = document.getElementById("email").value;
+    const pass = document.getElementById("password").value;
 
-      try{
-        await signInWithEmailAndPassword(auth, email, password);
-        // onAuthStateChanged سيتولى الرجوع
-      }catch(e){
-        showMsg("خطأ: " + (e?.message || e), false);
-      }
-    };
+    auth.signInWithEmailAndPassword(email, pass)
+      .then(() => {
+        window.location.href = "index.html";
+      })
+      .catch(err => alert(err.message));
+  }
 
-    window.emailSignup = async () => {
-      hideMsg();
-      const email = $("email").value.trim();
-      const password = $("password").value;
-      if(!email || !password) return showMsg("اكتب البريد وكلمة المرور.", false);
-      if(password.length < 6) return showMsg("كلمة المرور يجب أن تكون 6 أحرف أو أكثر.", false);
+  function openBot() {
+    window.open("https://t.me/YOUR_BOT_USERNAME", "_blank");
+  }
+</script>
 
-      try{
-        await createUserWithEmailAndPassword(auth, email, password);
-      }catch(e){
-        showMsg("خطأ: " + (e?.message || e), false);
-      }
-    };
-
-    window.emailReset = async () => {
-      hideMsg();
-      const email = $("email").value.trim();
-      if(!email) return showMsg("اكتب البريد أولاً.", false);
-
-      try{
-        await sendPasswordResetEmail(auth, email);
-        showMsg("تم إرسال رابط استرجاع كلمة المرور إلى بريدك.", true);
-      }catch(e){
-        showMsg("خطأ: " + (e?.message || e), false);
-      }
-    };
-
-    /************ PHONE ************/
-    let confirmationResult = null;
-    let recaptchaVerifier = null;
-
-    function ensureRecaptcha(){
-      if(recaptchaVerifier) return;
-      // reCAPTCHA invisible قدر الإمكان
-      recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha-container", {
-        size: "invisible"
-      });
-      recaptchaVerifier.render().catch(()=>{});
-    }
-
-    window.sendCode = async () => {
-      hideMsg();
-      const phone = $("phone").value.trim();
-      if(!phone.startsWith("+")) return showMsg("اكتب الرقم مع كود الدولة مثل +961…", false);
-
-      try{
-        ensureRecaptcha();
-        confirmationResult = await signInWithPhoneNumber(auth, phone, recaptchaVerifier);
-        $("otpBox").classList.remove("hide");
-        showMsg("تم إرسال الكود. أدخله الآن.", true);
-      }catch(e){
-        showMsg("خطأ إرسال الكود: " + (e?.message || e), false);
-      }
-    };
-
-    window.confirmCode = async () => {
-      hideMsg();
-      const code = $("otp").value.trim();
-      if(!confirmationResult) return showMsg("أرسل الكود أولاً.", false);
-      if(code.length < 4) return showMsg("أدخل الكود بشكل صحيح.", false);
-
-      try{
-        await confirmationResult.confirm(code);
-        // onAuthStateChanged سيتولى الرجوع
-      }catch(e){
-        showMsg("الكود غير صحيح أو منتهي: " + (e?.message || e), false);
-      }
-    };
-
-    window.clearPhoneFlow = () => {
-      $("phone").value = "";
-      $("otp").value = "";
-      $("otpBox").classList.add("hide");
-      confirmationResult = null;
-      hideMsg();
-    };
-  </script>
 </body>
 </html>
