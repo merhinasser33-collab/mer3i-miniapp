@@ -1,66 +1,373 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Mer3i Market</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f3f4f6;
-      padding: 20px;
+    :root{
+      --blue:#2f6fed;
+      --gray:#eef2f7;
+      --text:#111827;
+      --muted:#6b7280;
+      --card:#ffffff;
+      --shadow: 0 10px 30px rgba(0,0,0,.08);
+      --radius: 18px;
     }
-
-    .card {
-      background: white;
-      border-radius: 16px;
-      padding: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-      max-width: 500px;
-      margin: auto;
-      text-align: center;
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, "Segoe UI", Tahoma, Arial;
+      background:#f6f7fb;
+      color:var(--text);
     }
-
-    h1 {
-      margin-bottom: 10px;
+    .wrap{max-width:420px;margin:0 auto;padding:20px;}
+    .card{
+      background:var(--card);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:22px;
     }
-
-    p {
-      color: #555;
+    .center{display:flex;flex-direction:column;align-items:center;gap:14px;}
+    h1{margin:6px 0 0;font-size:34px;letter-spacing:.2px}
+    p{margin:0;color:var(--muted);line-height:1.6;text-align:center}
+    .btn{
+      width:100%;
+      border:0;
+      border-radius:14px;
+      padding:16px 14px;
+      font-size:18px;
+      cursor:pointer;
+      transition:.15s transform, .15s opacity;
     }
-
-    button {
-      width: 100%;
-      padding: 14px;
-      margin-top: 15px;
-      border-radius: 12px;
-      border: none;
-      font-size: 18px;
-      cursor: pointer;
+    .btn:active{transform:scale(.99);opacity:.92}
+    .btn-primary{background:var(--blue);color:#fff;font-weight:700}
+    .btn-light{background:#e9edf6;color:#111827;font-weight:700}
+    .btn-dark{background:#111827;color:#fff;font-weight:700}
+    .row{display:flex;gap:10px;width:100%}
+    .input{
+      width:100%;
+      padding:14px 14px;
+      border-radius:12px;
+      border:1px solid #d7deea;
+      background:#fff;
+      font-size:16px;
+      outline:none;
     }
-
-    .primary {
-      background: #2563eb;
-      color: white;
+    .label{width:100%;text-align:right;font-weight:700;color:#374151;margin-top:8px}
+    .error{
+      width:100%;
+      background:#fee2e2;
+      color:#991b1b;
+      padding:10px 12px;
+      border-radius:12px;
+      display:none;
+      font-size:14px;
+      line-height:1.5;
     }
-
-    .secondary {
-      background: #e5e7eb;
+    .success{
+      width:100%;
+      background:#dcfce7;
+      color:#14532d;
+      padding:10px 12px;
+      border-radius:12px;
+      display:none;
+      font-size:14px;
+      line-height:1.5;
     }
+    .topbar{
+      display:flex;align-items:center;justify-content:space-between;
+      margin-bottom:14px;
+    }
+    .link{
+      color:var(--blue);
+      font-weight:700;
+      cursor:pointer;
+      user-select:none;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+      margin-top:14px;
+    }
+    .tile{
+      background:#ffffff;
+      border-radius:16px;
+      box-shadow:0 8px 20px rgba(0,0,0,.06);
+      padding:14px;
+      min-height:92px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      gap:8px;
+      cursor:pointer;
+    }
+    .tile span{font-weight:800}
+    .badge{
+      font-size:12px;
+      padding:6px 10px;
+      border-radius:999px;
+      background:var(--gray);
+      color:#374151;
+      font-weight:700;
+    }
+    .small{font-size:13px;color:var(--muted)}
+    .hidden{display:none !important;}
   </style>
 </head>
 
 <body>
+  <div class="wrap">
 
-  <div class="card">
-    <h1>🛒 Mer3i Market</h1>
-    <p>أهلاً بك داخل التطبيق، يمكنك تصفح المحتوى الآن.</p>
+    <!-- ✅ شاشة البداية -->
+    <div id="viewHome" class="card center">
+      <h1>Mer3i Market 🛒</h1>
+      <p>أهلًا بك داخل التطبيق. يمكنك تصفّح المحتوى الآن.</p>
 
-    <button class="primary">عرض الأقسام</button>
-    <button class="secondary">تواصل معنا</button>
+      <button id="btnGoLogin" class="btn btn-primary">تسجيل الدخول 🔐</button>
+      <button id="btnGoSections" class="btn btn-light">عرض الأقسام</button>
+      <button id="btnContact" class="btn btn-dark">استفسار 💬</button>
+
+      <p class="small">ملاحظة: تسجيل الدخول ولوحة التحكم سنكملهم خطوة خطوة لاحقًا.</p>
+    </div>
+
+    <!-- ✅ شاشة تسجيل الدخول -->
+    <div id="viewLogin" class="card hidden">
+      <div class="topbar">
+        <div class="link" id="backFromLogin">✕</div>
+        <div style="font-weight:900;font-size:18px">تسجيل الدخول 🔐</div>
+        <div style="width:24px"></div>
+      </div>
+
+      <div class="error" id="loginError"></div>
+      <div class="success" id="loginSuccess"></div>
+
+      <div class="label">البريد الإلكتروني</div>
+      <input id="email" class="input" type="email" placeholder="example@gmail.com" autocomplete="email" />
+
+      <div class="label">كلمة المرور</div>
+      <input id="password" class="input" type="password" placeholder="••••••••" autocomplete="current-password" />
+
+      <div style="height:10px"></div>
+
+      <button id="btnLogin" class="btn btn-primary">تسجيل دخول</button>
+
+      <div class="row" style="margin-top:10px">
+        <button id="btnCreate" class="btn btn-light" style="flex:1">إنشاء حساب</button>
+        <button id="btnReset" class="btn btn-light" style="flex:1">نسيت كلمة المرور</button>
+      </div>
+
+      <div style="margin-top:12px" class="small">
+        * إذا ظهر خطأ (auth/too-many-requests) جرّب بعد قليل أو غيّر كلمة المرور.
+      </div>
+    </div>
+
+    <!-- ✅ صفحة الأقسام -->
+    <div id="viewSections" class="card hidden">
+      <div class="topbar">
+        <div class="link" id="backFromSections">رجوع</div>
+        <div style="font-weight:900;font-size:18px">الأقسام</div>
+        <div class="link" id="btnLogout" title="خروج">خروج</div>
+      </div>
+
+      <p style="text-align:right;margin:0 0 8px;color:var(--muted)">
+        اختر قسمًا للدخول:
+      </p>
+
+      <div class="grid">
+        <div class="tile" data-section="store">
+          <div class="badge">المتجر</div>
+          <span>المنتجات</span>
+        </div>
+
+        <div class="tile" data-section="myStore">
+          <div class="badge">متجري</div>
+          <span>إدارة المتجر</span>
+        </div>
+
+        <div class="tile" data-section="profile">
+          <div class="badge">حسابي</div>
+          <span>الملف الشخصي</span>
+        </div>
+
+        <div class="tile" data-section="cart">
+          <div class="badge">السلة</div>
+          <span>مشترياتي</span>
+        </div>
+
+        <div class="tile" data-section="ads">
+          <div class="badge">الإعلانات</div>
+          <span>العروض</span>
+        </div>
+
+        <div class="tile" data-section="custom">
+          <div class="badge">طلبات</div>
+          <span>طلبات مخصصة</span>
+        </div>
+      </div>
+
+      <div id="sectionResult" style="margin-top:14px" class="small"></div>
+    </div>
+
   </div>
 
+  <!-- Firebase v9 (CDN) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+      signInWithEmailAndPassword,
+      createUserWithEmailAndPassword,
+      sendPasswordResetEmail,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+
+    // ✅ 1) ضع بيانات مشروعك من Firebase هنا
+    const firebaseConfig = {
+      apiKey: "PASTE_API_KEY",
+      authDomain: "PASTE_AUTH_DOMAIN",
+      projectId: "PASTE_PROJECT_ID",
+      appId: "PASTE_APP_ID",
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // عناصر الواجهات
+    const viewHome = document.getElementById("viewHome");
+    const viewLogin = document.getElementById("viewLogin");
+    const viewSections = document.getElementById("viewSections");
+
+    const loginError = document.getElementById("loginError");
+    const loginSuccess = document.getElementById("loginSuccess");
+
+    const emailEl = document.getElementById("email");
+    const passEl  = document.getElementById("password");
+
+    // أزرار
+    document.getElementById("btnGoLogin").onclick = () => show("login");
+    document.getElementById("btnGoSections").onclick = () => show("sections");
+    document.getElementById("btnContact").onclick = () => alert("اكتب استفسارك هنا لاحقًا ✅");
+
+    document.getElementById("backFromLogin").onclick = () => show("home");
+    document.getElementById("backFromSections").onclick = () => show("home");
+
+    document.getElementById("btnLogin").onclick = login;
+    document.getElementById("btnCreate").onclick = createAccount;
+    document.getElementById("btnReset").onclick = resetPassword;
+    document.getElementById("btnLogout").onclick = async () => {
+      await signOut(auth);
+      show("home");
+    };
+
+    // الأقسام (حالياً مثال)
+    const sectionResult = document.getElementById("sectionResult");
+    document.querySelectorAll(".tile").forEach(tile => {
+      tile.addEventListener("click", () => {
+        const s = tile.dataset.section;
+        sectionResult.textContent = "فتحت قسم: " + s + " ✅ (نضيف صفحات كل قسم لاحقًا)";
+      });
+    });
+
+    function show(which){
+      viewHome.classList.add("hidden");
+      viewLogin.classList.add("hidden");
+      viewSections.classList.add("hidden");
+
+      if(which === "home") viewHome.classList.remove("hidden");
+      if(which === "login") viewLogin.classList.remove("hidden");
+      if(which === "sections") viewSections.classList.remove("hidden");
+    }
+
+    function setMsg(type, msg){
+      loginError.style.display = "none";
+      loginSuccess.style.display = "none";
+      if(type === "error"){
+        loginError.textContent = msg;
+        loginError.style.display = "block";
+      }else{
+        loginSuccess.textContent = msg;
+        loginSuccess.style.display = "block";
+      }
+    }
+
+    // ✅ 2) دخول → نجاح → انتقال مباشر للأقسام (هذا طلبك الأساسي)
+    async function login(){
+      const email = emailEl.value.trim();
+      const password = passEl.value;
+
+      if(!email || !password){
+        setMsg("error", "اكتب البريد وكلمة المرور.");
+        return;
+      }
+
+      try{
+        await signInWithEmailAndPassword(auth, email, password);
+        setMsg("ok", "تم تسجيل الدخول ✅ يتم تحويلك الآن...");
+        // تحويل مباشر لواجهة التطبيق
+        show("sections");
+      }catch(e){
+        setMsg("error", humanFirebaseError(e));
+      }
+    }
+
+    async function createAccount(){
+      const email = emailEl.value.trim();
+      const password = passEl.value;
+
+      if(!email || !password){
+        setMsg("error", "اكتب البريد وكلمة مرور لا تقل عن 6 أحرف.");
+        return;
+      }
+
+      try{
+        await createUserWithEmailAndPassword(auth, email, password);
+        setMsg("ok", "تم إنشاء الحساب ✅ تم تحويلك للأقسام...");
+        show("sections");
+      }catch(e){
+        setMsg("error", humanFirebaseError(e));
+      }
+    }
+
+    async function resetPassword(){
+      const email = emailEl.value.trim();
+      if(!email){
+        setMsg("error", "اكتب بريدك أولاً ثم اضغط نسيت كلمة المرور.");
+        return;
+      }
+      try{
+        await sendPasswordResetEmail(auth, email);
+        setMsg("ok", "تم إرسال رابط إعادة التعيين إلى بريدك ✅");
+      }catch(e){
+        setMsg("error", humanFirebaseError(e));
+      }
+    }
+
+    // ✅ 3) إذا كان المستخدم مسجّل دخول من قبل → دخله مباشرة للأقسام
+    onAuthStateChanged(auth, (user) => {
+      if(user){
+        // المستخدم مسجل
+        show("sections");
+      }else{
+        // غير مسجل
+        show("home");
+      }
+    });
+
+    function humanFirebaseError(e){
+      const code = (e && e.code) ? e.code : "";
+      if(code.includes("auth/too-many-requests")) return "طلبات كثيرة جدًا. انتظر قليلًا ثم جرّب من جديد، أو أعد تعيين كلمة المرور.";
+      if(code.includes("auth/wrong-password")) return "كلمة المرور غير صحيحة.";
+      if(code.includes("auth/user-not-found")) return "هذا البريد غير مسجّل. اضغط (إنشاء حساب).";
+      if(code.includes("auth/invalid-email")) return "البريد الإلكتروني غير صحيح.";
+      if(code.includes("auth/email-already-in-use")) return "هذا البريد مستخدم مسبقًا. جرّب تسجيل الدخول.";
+      if(code.includes("auth/weak-password")) return "كلمة المرور ضعيفة (اجعلها 6 أحرف أو أكثر).";
+      if(code.includes("auth/operation-not-allowed")) return "هذه الطريقة غير مفعّلة من إعدادات Firebase Authentication.";
+      return "حصل خطأ: " + (code || e.message || "غير معروف");
+    }
+  </script>
 </body>
 </html>
