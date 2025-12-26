@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>تسجيل دخول - Mer3i</title>
+
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <style>
+    body{margin:0;font-family:Arial,sans-serif;background:#f6f7fb;color:#111}
+    .wrap{max-width:520px;margin:24px auto;padding:0 14px}
+    .card{background:#fff;border-radius:18px;padding:18px;box-shadow:0 6px 18px rgba(0,0,0,.08);border:1px solid rgba(0,0,0,.06)}
+    h1{margin:0 0 10px;font-size:24px}
+    .muted{color:#666;line-height:1.6;margin:6px 0 0}
+    label{display:block;margin-top:12px;font-size:14px;color:#333}
+    input{
+      width:100%;box-sizing:border-box;margin-top:6px;
+      padding:12px 12px;border-radius:12px;border:1px solid #d9dfea;
+      font-size:16px;outline:none;
+    }
+    .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+    button,a.btn{
+      border:0;border-radius:14px;padding:12px 14px;font-size:16px;cursor:pointer;
+      background:#2b7cff;color:#fff;text-decoration:none;display:inline-flex;align-items:center;gap:8px;
+    }
+    button.secondary,a.btn.secondary{background:#111}
+    button.gray{background:#e9edf5;color:#111}
+    .msg{margin-top:12px;padding:10px 12px;border-radius:12px;font-size:14px;display:none}
+    .ok{background:#e9fff0;color:#0a8f3e;border:1px solid rgba(10,143,62,.2)}
+    .bad{background:#fff1f1;color:#c62828;border:1px solid rgba(198,40,40,.2)}
+    .hide{display:none!important}
+    .hr{height:1px;background:rgba(0,0,0,.08);margin:14px 0}
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>🔐 تسجيل دخول</h1>
+      <p class="muted">
+        تسجيل الدخول بالبريد الآن ✅<br>
+        (بعدها نضيف تسجيل برقم الهاتف OTP عبر Firebase)
+      </p>
+
+      <div id="msg" class="msg"></div>
+
+      <label>البريد الإلكتروني</label>
+      <input id="email" type="email" placeholder="example@mail.com" autocomplete="email" />
+
+      <label>كلمة المرور</label>
+      <input id="pass" type="password" placeholder="••••••••" autocomplete="current-password" />
+
+      <div class="row">
+        <button onclick="loginEmail()">✅ دخول</button>
+        <button class="secondary" onclick="signupEmail()">➕ إنشاء حساب</button>
+        <button class="gray" onclick="goHome()">⬅️ رجوع</button>
+      </div>
+
+      <div class="hr"></div>
+
+      <div id="userBox" class="hide">
+        <p class="muted">تم تسجيل الدخول ✅</p>
+        <div class="row">
+          <button class="secondary" onclick="logout()">🚪 تسجيل خروج</button>
+          <button onclick="goHome()">🏠 للمتجر</button>
+        </div>
+      </div>
+
+      <p class="muted" style="margin-top:12px;font-size:13px">
+        ملاحظة: لن نعرض بيانات تيليجرام أو أي معلومات للناس.
+      </p>
+    </div>
+  </div>
+
+  <script type="module">
+    import { firebaseConfig } from "./firebase.js";
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import {
+      getAuth,
+      setPersistence,
+      browserLocalPersistence,
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      signOut,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // خلي الجلسة محفوظة على نفس الجهاز
+    await setPersistence(auth, browserLocalPersistence);
+
+    const $ = (id) => document.getElementById(id);
+    const msgEl = $("msg");
+
+    function showMsg(text, ok=true){
+      msgEl.style.display = "block";
+      msgEl.className = "msg " + (ok ? "ok" : "bad");
+      msgEl.textContent = text;
+    }
+
+    function hideMsg(){
+      msgEl.style.display = "none";
+    }
+
+    window.loginEmail = async function(){
+      hideMsg();
+      const email = $("email").value.trim();
+      const pass = $("pass").value.trim();
+      if(!email || !pass) return showMsg("اكتب البريد وكلمة المرور.", false);
+
+      try{
+        await signInWithEmailAndPassword(auth, email, pass);
+        showMsg("تم تسجيل الدخول ✅");
+      }catch(e){
+        showMsg("خطأ: " + (e?.message || e), false);
+      }
+    }
+
+    window.signupEmail = async function(){
+      hideMsg();
+      const email = $("email").value.trim();
+      const pass = $("pass").value.trim();
+      if(!email || !pass) return showMsg("اكتب البريد وكلمة المرور.", false);
+      if(pass.length < 6) return showMsg("كلمة المرور لازم 6 أحرف أو أكثر.", false);
+
+      try{
+        await createUserWithEmailAndPassword(auth, email, pass);
+        showMsg("تم إنشاء الحساب وتسجيل الدخول ✅");
+      }catch(e){
+        showMsg("خطأ: " + (e?.message || e), false);
+      }
+    }
+
+    window.logout = async function(){
+      await signOut(auth);
+      showMsg("تم تسجيل الخروج ✅");
+    }
+
+    window.goHome = function(){
+      location.href = "/index.html";
+    }
+
+    // مراقبة حالة المستخدم
+    onAuthStateChanged(auth, (user) => {
+      if(user){
+        $("userBox").classList.remove("hide");
+      }else{
+        $("userBox").classList.add("hide");
+      }
+    });
+
+    // Telegram polish
+    try{
+      const tg = window.Telegram?.WebApp;
+      if(tg){ tg.ready(); tg.expand(); }
+    }catch{}
+  </script>
+</body>
+</html>
