@@ -1,214 +1,37 @@
-  <!doctype html>
-<html lang="ar" dir="rtl">
+<!DOCTYPE html>
+<html lang="ar">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>لوحة تحكم Mer3i</title>
+  <meta charset="UTF-8">
+  <title>لوحة التحكم – Mer3i</title>
 
-  <!-- ضروري جداً لتشغيل Telegram WebApp -->
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
-  <style>
-    body{
-      margin:0;
-      font-family: Arial, sans-serif;
-      background:#f6f7fb;
-      color:#111;
-    }
-    .wrap{
-      max-width:720px;
-      margin:24px auto;
-      padding:0 14px;
-    }
-    .card{
-      background:#fff;
-      border-radius:16px;
-      padding:18px;
-      box-shadow:0 6px 18px rgba(0,0,0,.08);
-      border:1px solid rgba(0,0,0,.06);
-    }
-    .title{
-      font-size:26px;
-      margin:0 0 10px;
-      font-weight:700;
-    }
-    .muted{
-      color:#666;
-      margin:6px 0 0;
-      line-height:1.6;
-    }
-    .row{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top:14px;
-    }
-    button, a.btn{
-      border:0;
-      border-radius:12px;
-      padding:12px 14px;
-      font-size:16px;
-      cursor:pointer;
-      background:#2b7cff;
-      color:#fff;
-      text-decoration:none;
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-    }
-    button.secondary, a.btn.secondary{
-      background:#111;
-    }
-    button.gray{
-      background:#e9edf5;
-      color:#111;
-    }
-    button.danger{
-      background:#ff3b30;
-    }
-    .pill{
-      display:inline-block;
-      padding:6px 10px;
-      border-radius:999px;
-      font-size:13px;
-      background:#eef6ff;
-      color:#1a63d6;
-      margin-top:10px;
-    }
-    .hr{
-      height:1px;
-      background:rgba(0,0,0,.08);
-      margin:14px 0;
-    }
-    .hide{ display:none !important; }
-    code{
-      background:#f2f4f8;
-      padding:2px 6px;
-      border-radius:8px;
-      font-size:13px;
-    }
-    .status-ok{ color:#0a8f3e; font-weight:700;}
-    .status-bad{ color:#c62828; font-weight:700;}
-  </style>
+  <script src="firebase-config.js"></script>
 </head>
 
 <body>
-  <div class="wrap">
-    <!-- كرت منع -->
-    <div id="blocked" class="card hide">
-      <h1 class="title">❌ لا يمكن التحقق من المستخدم</h1>
-      <p class="muted"><span class="status-bad">ممنوع</span> ⛔</p>
-      <p class="muted">هذه الصفحة مخصصة للمدير فقط.</p>
-      <div class="hr"></div>
-      <p class="muted" id="blockedReason"></p>
-      <div class="row">
-        <button class="gray" onclick="location.reload()">🔄 إعادة تحميل</button>
-        <a class="btn secondary" href="https://t.me/Mer3iMarket_bot">🤖 فتح البوت</a>
-      </div>
-    </div>
 
-    <!-- كرت المدير -->
-    <div id="admin" class="card hide">
-      <h1 class="title">🛠️ لوحة تحكم Mer3i</h1>
-      <div class="pill">✅ تم التحقق بنجاح</div>
+<h2>لوحة التحكم</h2>
+<p>هذه الصفحة خاصة بالإدارة فقط</p>
 
-      <p class="muted" id="who"></p>
+<button onclick="logout()">تسجيل خروج</button>
 
-      <div class="hr"></div>
-
-      <div class="row">
-        <button onclick="feature('add_product')">➕ إضافة منتج</button>
-        <button onclick="feature('manage_products')">📦 إدارة المنتجات</button>
-        <button onclick="feature('messages')">💬 رسائل العملاء</button>
-        <button class="gray" onclick="location.reload()">🔄 تحديث</button>
-        <a class="btn secondary" href="https://t.me/Mer3iMarket_bot">🤖 فتح البوت</a>
-      </div>
-
-      <div class="hr"></div>
-
-      <p class="muted">
-        ملاحظة: هذه لوحة تجريبية. لاحقاً نضيف صفحات: المنتجات/الطلبات/المستخدمين داخل نفس المشروع.
-      </p>
-      <p class="muted" style="margin-top:10px">
-        فحص سريع: <span id="dbg"></span>
-      </p>
-    </div>
-  </div>
-
-  <script>
-    /***********************
-     * إعدادات المدير
-     ***********************/
-    const ADMIN_ID = 5423756075; // <-- ضع رقم Telegram ID الخاص فيك هنا
-
-    /***********************
-     * أدوات
-     ***********************/
-    const $ = (id) => document.getElementById(id);
-
-    function showBlocked(reason){
-      $("admin").classList.add("hide");
-      $("blocked").classList.remove("hide");
-      $("blockedReason").textContent = reason || "";
+<script>
+  // حماية الصفحة
+  firebase.auth().onAuthStateChanged(user => {
+    if (!user) {
+      window.location.href = "login.html";
     }
+  });
 
-    function showAdmin(user){
-      $("blocked").classList.add("hide");
-      $("admin").classList.remove("hide");
-      const name = [user?.first_name, user?.last_name].filter(Boolean).join(" ").trim() || "—";
-      const username = user?.username ? "@" + user.username : "—";
-      $("who").innerHTML =
-        `Telegram ID: <b>${user?.id ?? "—"}</b><br>` +
-        `الاسم: <b>${name}</b><br>` +
-        `username: <b>${username}</b>`;
-    }
+  function logout() {
+    firebase.auth().signOut().then(() => {
+      window.location.href = "login.html";
+    });
+  }
+</script>
 
-    function getTelegramUser(){
-      try{
-        const tg = window.Telegram?.WebApp;
-        if(!tg) return { ok:false, reason:"الصفحة ليست مفتوحة كـ Telegram WebApp. افتحها من داخل البوت (Menu/WebApp)." };
-
-        tg.ready();
-        tg.expand();
-
-        // أهم شيء: user يأتي من initDataUnsafe
-        const user = tg.initDataUnsafe?.user;
-        if(!user || !user.id){
-          return { ok:false, reason:"لم يتم إرسال بيانات المستخدم من تيليجرام. تأكد أنك فتحتها من زر داخل البوت، ثم اضغط إعادة تحميل." };
-        }
-        return { ok:true, user, tg };
-      }catch(e){
-        return { ok:false, reason:"خطأ أثناء القراءة من Telegram WebApp: " + (e?.message || e) };
-      }
-    }
-
-    function checkAdmin(){
-      const res = getTelegramUser();
-      if(!res.ok){
-        showBlocked(res.reason);
-        $("dbg") && ($("dbg").textContent = "WEBAPP: NO / USER: NO");
-        return;
-      }
-
-      const user = res.user;
-      const isAdmin = Number(user.id) === Number(ADMIN_ID);
-
-      if(!isAdmin){
-        showBlocked(`هذا الحساب ليس مديراً. (ID لديك: ${user.id})`);
-        $("dbg") && ($("dbg").textContent = "WEBAPP: YES / USER: YES / ADMIN: NO");
-        return;
-      }
-
-      showAdmin(user);
-      $("dbg").textContent = "WEBAPP: YES / USER: YES / ADMIN: YES";
-    }
-
-    function feature(name){
-      alert("ميزة تجريبية: " + name + "\n\nالخطوة التالية: سنربطها بصفحات داخل نفس المشروع.");
-    }
-
-    // شغّل التحقق
-    checkAdmin();
-  </script>
 </body>
 </html>
