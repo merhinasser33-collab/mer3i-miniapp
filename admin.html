@@ -17,6 +17,49 @@
     button.danger{background:#dc2626}
     .hide{display:none}
   </style>
+  <!-- 🔒 Admin Lock: Telegram only + Owner only -->
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>
+(function () {
+  // ✅ ضع Telegram ID تبعك هنا
+  const OWNER_TG_ID = 5423756075;
+
+  // 1) لازم تكون الصفحة مفتوحة داخل Telegram WebApp
+  const tg = window.Telegram && window.Telegram.WebApp;
+  if (!tg) {
+    document.documentElement.innerHTML = `
+      <h2 style="font-family:Arial;text-align:center;margin-top:40px">
+        ❌ هذه الصفحة لا تُفتح إلا داخل تيليجرام
+      </h2>`;
+    return;
+  }
+
+  // 2) لازم يوجد user id
+  const user = tg.initDataUnsafe && tg.initDataUnsafe.user;
+  if (!user || !user.id) {
+    document.documentElement.innerHTML = `
+      <h2 style="font-family:Arial;text-align:center;margin-top:40px">
+        ❌ لا يمكن التحقق من المستخدم
+      </h2>`;
+    return;
+  }
+
+  // 3) لازم يكون هو أنت فقط
+  if (Number(user.id) !== OWNER_TG_ID) {
+    document.documentElement.innerHTML = `
+      <h2 style="font-family:Arial;text-align:center;margin-top:40px">
+        🚫 ممنوع الدخول
+      </h2>
+      <p style="font-family:Arial;text-align:center">
+        هذه لوحة تحكم خاصة بالمالك فقط.
+      </p>`;
+    return;
+  }
+
+  // ✅ إذا وصلنا لهنا => أنت المالك
+  tg.ready();
+})();
+</script>
 </head>
 
 <body>
