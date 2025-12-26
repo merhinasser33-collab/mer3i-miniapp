@@ -1,174 +1,108 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
   <title>Mer3i Market</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- ضروري لقراءة بيانات تيليجرام داخل الـ WebApp -->
+  <!-- Telegram WebApp -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
   <style>
     body{
       margin:0;
       font-family: Arial, sans-serif;
-      background:#f6f7fb;
-      color:#111;
+      background:#f5f6fa;
     }
     .wrap{
-      max-width:720px;
-      margin:24px auto;
-      padding:0 14px;
+      max-width:420px;
+      margin:20px auto;
+      padding:10px;
     }
     .card{
       background:#fff;
-      border-radius:16px;
+      border-radius:14px;
       padding:18px;
-      box-shadow:0 6px 18px rgba(0,0,0,.08);
-      border:1px solid rgba(0,0,0,.06);
+      box-shadow:0 6px 16px rgba(0,0,0,.08);
+      text-align:center;
     }
-    .title{
-      font-size:26px;
-      margin:0 0 10px;
-      font-weight:800;
-      display:flex;
-      align-items:center;
-      gap:10px;
-    }
-    .muted{
-      color:#666;
-      margin:6px 0 0;
-      line-height:1.7;
-    }
-    .row{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top:14px;
-    }
-    button, a.btn{
-      border:0;
+    h1{margin:0 0 10px}
+    .ok{color:green;font-weight:bold}
+    .btn{
+      width:100%;
+      padding:14px;
+      margin-top:10px;
+      border:none;
       border-radius:12px;
-      padding:12px 14px;
       font-size:16px;
       cursor:pointer;
-      background:#2b7cff;
-      color:#fff;
-      text-decoration:none;
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
     }
-    button.secondary, a.btn.secondary{ background:#111; }
-    button.gray{ background:#e9edf5; color:#111; }
-    .pill{
-      display:inline-block;
-      padding:6px 10px;
-      border-radius:999px;
-      font-size:13px;
-      background:#eef6ff;
-      color:#1a63d6;
-      margin-top:10px;
-    }
-    .hr{ height:1px; background:rgba(0,0,0,.08); margin:14px 0; }
-    .grid{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:10px;
-      margin-top:12px;
-    }
-    @media (max-width:520px){
-      .grid{ grid-template-columns: 1fr; }
-    }
-    code{
-      background:#f2f4f8;
-      padding:2px 6px;
-      border-radius:8px;
-      font-size:13px;
-    }
-    .bad{ color:#c62828; font-weight:700;}
-    .ok{ color:#0a8f3e; font-weight:700;}
+    .blue{background:#2f7df6;color:#fff}
+    .gray{background:#e5e8ef}
+    .dark{background:#111;color:#fff}
+    .hide{display:none}
+    .muted{color:#666;font-size:14px;margin-top:10px}
   </style>
 </head>
 
 <body>
-  <div class="wrap">
-    <div class="card">
-      <div class="title">✅ Mer3i Market 🛒</div>
-      <div class="pill">هذه الصفحة داخل Telegram Mini App</div>
+<div class="wrap">
+  <div class="card">
+    <h1>🛒 Mer3i Market ✅</h1>
 
-      <p class="muted" id="hint"></p>
+    <p class="ok">تم جلب بيانات تيليجرام</p>
 
-      <div class="hr"></div>
+    <p id="info" class="muted"></p>
 
-      <div class="grid">
-        <button id="btnProducts">📦 المنتجات</button>
-        <button id="btnSupport" class="gray">💬 استفسار</button>
-        <button id="btnAdmin" class="secondary">🛠️ لوحة التحكم</button>
-        <button id="btnReload" class="gray">🔄 تحديث</button>
-      </div>
+    <!-- أزرار المستخدم -->
+    <button class="btn blue">📦 المنتجات</button>
+    <button class="btn gray">💬 استفسار</button>
 
-      <div class="hr"></div>
+    <!-- زر لوحة التحكم (مخفي افتراضياً) -->
+    <button id="adminBtn" class="btn dark hide"
+      onclick="window.location.href='admin.html'">
+      🛠️ لوحة التحكم
+    </button>
 
-      <p class="muted" style="margin:0">
-        حالة تيليجرام: <span id="dbg"></span>
-      </p>
-    </div>
+    <button class="btn gray" onclick="location.reload()">🔄 تحديث</button>
+
+    <p class="muted" id="debug"></p>
   </div>
+</div>
 
-  <script>
-    const $ = (id) => document.getElementById(id);
+<script>
+  /* رقمك أنت فقط (المدير) */
+  const ADMIN_ID = 5423756075;
 
-    // ملاحظة: لا تضع رابط admin كـ <a href> خارجي
-    // يجب فتحه داخل نفس الـ WebApp عبر location.href
-    function goAdmin(){
-      // انتقال داخلي داخل نفس المشروع => يبقى WebApp ويرسل user
-      location.href = "admin.html";
-    }
+  const tg = window.Telegram?.WebApp;
 
-    function init(){
-      const tg = window.Telegram?.WebApp;
+  if (!tg) {
+    document.getElementById("info").innerText =
+      "❌ افتح الصفحة من داخل تيليجرام فقط";
+  } else {
+    tg.ready();
+    tg.expand();
 
-      // إذا لم يكن داخل WebApp (فتح من كروم/جوجل) لن تظهر بيانات المستخدم
-      if(!tg){
-        $("hint").innerHTML = `❌ <span class="bad">لا توجد بيانات مستخدم</span>. افتح التطبيق من داخل البوت عبر زر <code>Menu</code>.`;
-        $("dbg").textContent = "WEBAPP: NO";
-      } else {
-        tg.ready();
-        tg.expand();
+    const user = tg.initDataUnsafe?.user;
 
-        const user = tg.initDataUnsafe?.user;
-        if(user?.id){
-          const name = [user.first_name, user.last_name].filter(Boolean).join(" ").trim() || "—";
-          const username = user.username ? ("@" + user.username) : "—";
-          $("hint").innerHTML =
-            `✅ <span class="ok">تم جلب بيانات تيليجرام</span><br>` +
-            `Telegram ID: <b>${user.id}</b><br>` +
-            `الاسم: <b>${name}</b><br>` +
-            `username: <b>${username}</b>`;
-          $("dbg").textContent = "WEBAPP: YES / USER: YES";
-        } else {
-          $("hint").innerHTML =
-            `⚠️ <span class="bad">فتح داخل تيليجرام لكن لم تصل بيانات المستخدم</span>.<br>` +
-            `جرّب إغلاق الـMiniApp وفتحه مجددًا من زر داخل البوت.`;
-          $("dbg").textContent = "WEBAPP: YES / USER: NO";
-        }
+    if (!user) {
+      document.getElementById("info").innerText =
+        "❌ لا توجد بيانات مستخدم";
+    } else {
+      document.getElementById("info").innerHTML =
+        `Telegram ID: <b>${user.id}</b><br>
+         الاسم: <b>${user.first_name || ""}</b><br>
+         username: <b>${user.username ? "@"+user.username : "-"}</b>`;
+
+      document.getElementById("debug").innerText =
+        "WEBAPP: YES / USER: YES";
+
+      /* إظهار لوحة التحكم للمدير فقط */
+      if (Number(user.id) === Number(ADMIN_ID)) {
+        document.getElementById("adminBtn").classList.remove("hide");
       }
-
-      $("btnAdmin").onclick = goAdmin;
-
-      $("btnProducts").onclick = () => {
-        alert("📦 صفحة المنتجات (لاحقاً نربطها بصفحة products.html داخل نفس المشروع).");
-      };
-
-      $("btnSupport").onclick = () => {
-        alert("💬 استفسار: (لاحقاً نفتح محادثة أو نموذج داخل التطبيق).");
-      };
-
-      $("btnReload").onclick = () => location.reload();
     }
-
-    init();
-  </script>
+  }
+</script>
 </body>
-  </html>
+</html>
