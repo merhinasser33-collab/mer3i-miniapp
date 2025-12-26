@@ -1,101 +1,51 @@
-<!DOCTYPE html>
-<html lang="ar">
+<!doctype html>
+<html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Mer3i Market</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <!-- Firebase CDN -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-    // 🔐 إعدادات Firebase الخاصة بك
-    const firebaseConfig = {
-      apiKey: "AIzaSyDdChxB8Axden4r5TChcL_wuwuGUZfL0yk",
-      authDomain: "mer3imarket.firebaseapp.com",
-      projectId: "mer3imarket",
-      storageBucket: "mer3imarket.firebasestorage.app",
-      messagingSenderId: "318791325244",
-      appId: "1:318791325244:web:2a35c7fe774ab1772f5539",
-      measurementId: "G-4ZR3G6DEN4"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-
-    // 👑 ضع UID الخاص بك هنا
-    const ADMIN_UID = "PUT_YOUR_ADMIN_UID_HERE";
-
-    window.addEventListener("DOMContentLoaded", () => {
-      const adminBtn = document.getElementById("adminBtn");
-
-      onAuthStateChanged(auth, (user) => {
-        if (!user) {
-          // غير مسجل دخول
-          window.location.href = "login.html";
-        } else {
-          // مسجل دخول
-          if (user.uid === ADMIN_UID) {
-            adminBtn.style.display = "block";
-          }
-        }
-      });
-    });
-  </script>
-
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f6f7fb;
-      margin: 0;
-      padding: 20px;
-      text-align: center;
+    body{margin:0;font-family:Arial;background:#f6f7fb;color:#111}
+    .wrap{max-width:520px;margin:24px auto;padding:0 14px}
+    .card{background:#fff;border-radius:18px;padding:18px;box-shadow:0 8px 24px rgba(0,0,0,.08);border:1px solid rgba(0,0,0,.06)}
+    h1{margin:0 0 10px;font-size:32px}
+    .muted{color:#666;line-height:1.6}
+    .row{display:grid;gap:10px;margin-top:14px}
+    button,a.btn{
+      border:0;border-radius:14px;padding:14px 16px;font-size:18px;cursor:pointer;
+      background:#2b7cff;color:#fff;text-decoration:none;text-align:center;
+      display:block;
     }
-    .card {
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      max-width: 400px;
-      margin: auto;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    }
-    button {
-      width: 100%;
-      padding: 14px;
-      margin-top: 12px;
-      font-size: 16px;
-      border-radius: 10px;
-      border: none;
-      cursor: pointer;
-    }
-    .blue { background:#2f80ed; color:white; }
-    .black { background:#111; color:white; }
+    .black{background:#111}
+    .gray{background:#e9edf5;color:#111}
+    .hide{display:none}
+    .small{margin-top:10px;color:#777;font-size:13px}
   </style>
 </head>
-
 <body>
+  <div class="wrap">
+    <div class="card">
+      <h1>🛒 Mer3i Market</h1>
+      <p class="muted">أهلاً بك داخل التطبيق. يمكنك تصفح المحتوى، وعند الحاجة سجّل دخولك.</p>
 
-  <div class="card">
-    <h2>🛒 Mer3i Market</h2>
-    <p>أهلاً بك داخل التطبيق</p>
+      <div class="row">
+        <a class="btn" href="login.html">🔐 تسجيل الدخول</a>
+        <button class="gray" id="btnInquiry">💬 استفسار</button>
 
-    <button class="blue" onclick="alert('سيتم فتح المتجر لاحقًا')">
-      المنتجات 📦
-    </button>
+        <!-- لاحقًا نفعلها -->
+        <button class="black hide" id="btnDashboard">🛠️ لوحة التحكم</button>
+        <button class="gray hide" id="btnLogout">تسجيل خروج ↩</button>
+      </div>
 
-    <button class="black" onclick="alert('استفسار عبر البوت')">
-      استفسار 💬
-    </button>
-
-    <!-- 👑 زر لوحة التحكم (يظهر للأدمن فقط) -->
-    <button id="adminBtn" class="black"
-      style="display:none"
-      onclick="window.location.href='admin.html'">
-      لوحة التحكم 🛠️
-    </button>
-
+      <div class="small">ملاحظة: تسجيل الدخول ولوحة التحكم سنكمّلهم خطوة خطوة لاحقًا.</div>
+    </div>
   </div>
 
+<script>
+  // استفسار: ضع رابط البوت/الدعم الخاص فيك
+  document.getElementById("btnInquiry").onclick = () => {
+    window.open("https://t.me/Mer3iMarket_bot", "_blank");
+  };
+</script>
 </body>
 </html>
