@@ -1,108 +1,134 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mer3i Market</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Telegram WebApp -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
   <style>
-    body{
-      margin:0;
-      font-family: Arial, sans-serif;
-      background:#f5f6fa;
-    }
-    .wrap{
-      max-width:420px;
-      margin:20px auto;
-      padding:10px;
-    }
-    .card{
-      background:#fff;
-      border-radius:14px;
-      padding:18px;
-      box-shadow:0 6px 16px rgba(0,0,0,.08);
-      text-align:center;
-    }
-    h1{margin:0 0 10px}
-    .ok{color:green;font-weight:bold}
-    .btn{
-      width:100%;
-      padding:14px;
-      margin-top:10px;
-      border:none;
-      border-radius:12px;
-      font-size:16px;
-      cursor:pointer;
-    }
-    .blue{background:#2f7df6;color:#fff}
-    .gray{background:#e5e8ef}
-    .dark{background:#111;color:#fff}
-    .hide{display:none}
-    .muted{color:#666;font-size:14px;margin-top:10px}
+    body{margin:0;font-family:Arial,sans-serif;background:#f6f7fb;color:#111}
+    .wrap{max-width:720px;margin:24px auto;padding:0 14px}
+    .card{background:#fff;border-radius:18px;padding:18px;box-shadow:0 8px 22px rgba(0,0,0,.08);border:1px solid rgba(0,0,0,.06)}
+    .top{display:flex;align-items:center;justify-content:center;gap:10px}
+    .title{font-size:30px;margin:10px 0 4px;font-weight:800;text-align:center}
+    .sub{margin:0;text-align:center;color:#2f7d32;font-weight:700}
+    .muted{color:#666;line-height:1.6;text-align:center;margin:10px 0 0}
+    .row{display:flex;flex-direction:column;gap:12px;margin-top:16px}
+    button,a.btn{border:0;border-radius:14px;padding:14px 16px;font-size:18px;cursor:pointer;background:#2b7cff;color:#fff;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:10px}
+    .gray{background:#e9edf5;color:#111}
+    .dark{background:#111}
+    .hide{display:none !important}
+    .small{font-size:12px;color:#999;text-align:center;margin-top:12px}
+    .hint{font-size:13px;color:#777;text-align:center;margin-top:10px}
   </style>
 </head>
 
 <body>
-<div class="wrap">
-  <div class="card">
-    <h1>🛒 Mer3i Market ✅</h1>
+  <div class="wrap">
+    <div class="card">
+      <div class="top">
+        <div style="font-size:34px">✅</div>
+        <div class="title">Mer3i Market</div>
+        <div style="font-size:34px">🛒</div>
+      </div>
 
-    <p class="ok">تم جلب بيانات تيليجرام</p>
+      <p class="sub" id="statusText">جاهز</p>
+      <p class="hint" id="hintText"></p>
 
-    <p id="info" class="muted"></p>
+      <div class="row">
+        <!-- للمستخدمين -->
+        <button id="btnLogin" onclick="goLogin()">🔐 تسجيل دخول</button>
+        <button class="gray" id="btnAsk" onclick="goAsk()">💬 استفسار</button>
 
-    <!-- أزرار المستخدم -->
-    <button class="btn blue">📦 المنتجات</button>
-    <button class="btn gray">💬 استفسار</button>
+        <!-- للمدير فقط -->
+        <button class="dark hide" id="btnAdmin" onclick="goAdmin()">🛠️ لوحة التحكم</button>
 
-    <!-- زر لوحة التحكم (مخفي افتراضياً) -->
-    <button id="adminBtn" class="btn dark hide"
-      onclick="window.location.href='admin.html'">
-      🛠️ لوحة التحكم
-    </button>
+        <button class="gray" onclick="location.reload()">🔄 تحديث</button>
+      </div>
 
-    <button class="btn gray" onclick="location.reload()">🔄 تحديث</button>
-
-    <p class="muted" id="debug"></p>
+      <div class="small" id="dbg"></div>
+    </div>
   </div>
-</div>
 
-<script>
-  /* رقمك أنت فقط (المدير) */
-  const ADMIN_ID = 5423756075;
+  <script>
+    /***********************
+     * 1) رقم المدير (ID) - غيّره إذا لزم
+     ***********************/
+    const ADMIN_ID = 5423756075; // رقمك أنت
 
-  const tg = window.Telegram?.WebApp;
+    /***********************
+     * 2) روابط الصفحات
+     * عدّلها حسب ملفات مشروعك
+     ***********************/
+    const PAGE_LOGIN = "login.html";   // سنعملها لاحقاً (Firebase)
+    const PAGE_ADMIN = "admin.html";   // موجود عندك
+    const BOT_LINK  = "https://t.me/Mer3iMarket_bot"; // بوتك
 
-  if (!tg) {
-    document.getElementById("info").innerText =
-      "❌ افتح الصفحة من داخل تيليجرام فقط";
-  } else {
-    tg.ready();
-    tg.expand();
+    const $ = (id) => document.getElementById(id);
 
-    const user = tg.initDataUnsafe?.user;
-
-    if (!user) {
-      document.getElementById("info").innerText =
-        "❌ لا توجد بيانات مستخدم";
-    } else {
-      document.getElementById("info").innerHTML =
-        `Telegram ID: <b>${user.id}</b><br>
-         الاسم: <b>${user.first_name || ""}</b><br>
-         username: <b>${user.username ? "@"+user.username : "-"}</b>`;
-
-      document.getElementById("debug").innerText =
-        "WEBAPP: YES / USER: YES";
-
-      /* إظهار لوحة التحكم للمدير فقط */
-      if (Number(user.id) === Number(ADMIN_ID)) {
-        document.getElementById("adminBtn").classList.remove("hide");
-      }
+    function getTG(){
+      const tg = window.Telegram?.WebApp;
+      if (!tg) return { ok:false, reason:"افتح الصفحة من داخل تيليجرام (Mini App) حتى تعمل بعض الميزات." };
+      tg.ready(); tg.expand();
+      const user = tg.initDataUnsafe?.user;
+      return { ok:true, tg, user };
     }
-  }
-</script>
+
+    function initUI(){
+      const res = getTG();
+
+      // لا نعرض أي معلومات شخصية للناس
+      $("dbg").textContent = "";
+
+      if (!res.ok){
+        $("statusText").textContent = "افتحها من داخل تيليجرام";
+        $("hintText").textContent = "إذا فتحتها من المتصفح لن نستطيع معرفة صلاحية المدير أو ميزات التيليجرام.";
+        // زر لوحة التحكم يبقى مخفي
+        return;
+      }
+
+      $("statusText").textContent = "✅ تم تشغيل الصفحة داخل Telegram Mini App";
+      $("hintText").textContent = "";
+
+      const userId = res.user?.id ? Number(res.user.id) : null;
+      const isAdmin = userId && (userId === Number(ADMIN_ID));
+
+      // إظهار زر لوحة التحكم فقط للمدير
+      if (isAdmin){
+        $("btnAdmin").classList.remove("hide");
+      } else {
+        $("btnAdmin").classList.add("hide");
+      }
+
+      // فحص سريع بدون كشف معلومات
+      $("dbg").textContent = `WEBAPP: YES`;
+    }
+
+    function goLogin(){
+      // حاليا نفتح صفحة login.html (سنبنيها Firebase Auth)
+      location.href = PAGE_LOGIN;
+    }
+
+    function goAdmin(){
+      // حماية إضافية: حتى لو ظهر الزر بالغلط
+      const res = getTG();
+      const userId = res.user?.id ? Number(res.user.id) : null;
+      if (!userId || userId !== Number(ADMIN_ID)){
+        alert("ممنوع: هذه الصفحة للمدير فقط.");
+        return;
+      }
+      location.href = PAGE_ADMIN;
+    }
+
+    function goAsk(){
+      // استفسار عبر البوت (أفضل وأبسط)
+      window.open(BOT_LINK, "_blank");
+    }
+
+    initUI();
+  </script>
 </body>
 </html>
